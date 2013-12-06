@@ -1,8 +1,7 @@
 package prefix;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.text.*;
+import java.text.DecimalFormat;
+import java.util.Scanner;
 
 /**
  * Class to compare search and sum times for 

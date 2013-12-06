@@ -2,30 +2,29 @@ package prefix;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
 
 public class FastPrefixDictionary implements PrefixDictionary {
 
 	private class TrieNode {
 		private long value;
 		private char c;
-		private ArrayList<TrieNode> refs;
+		private TrieNode[] refs;
 
 		public TrieNode() {
 			value = 0;
 			c = ' ';
-			refs = new ArrayList<TrieNode>();
+			refs = new TrieNode[0];
 		}
 
 		public TrieNode(int value, char c) {
 			this.c = c;
 			this.value = value;
-			refs = new ArrayList<TrieNode>();
+			refs = new TrieNode[0];
 		}
 
 		public boolean containsKey(Character c) {
-			for(int i = 0; i < refs.size(); i++){
-				if(c == refs.get(i).c){
+			for(int i = 0; i < refs.length; i++){
+				if(c == refs[i].c){
 					return true;
 				}
 			}
@@ -33,17 +32,22 @@ public class FastPrefixDictionary implements PrefixDictionary {
 		}
 
 		public TrieNode getNextNode(Character c) {
-			for(int i = 0; i < refs.size(); i++){
-				if(c == refs.get(i).c){
-					return refs.get(i);
+			for(int i = 0; i < refs.length; i++){
+				if(c == refs[i].c){
+					return refs[i];
 				}
 			}
 			return null;
 		}
 
 		public void insertNode(Character c, int value) {
-			refs.add(new TrieNode(value, c));
-			refs.trimToSize();
+			TrieNode[] temp = new TrieNode[refs.length + 1];
+			int i = 0;
+			for(; i < refs.length; i++){
+				temp[i] = refs[i];
+			}
+			temp[i] = new TrieNode(value, c);
+			refs = temp;
 		}
 
 		public long value() {

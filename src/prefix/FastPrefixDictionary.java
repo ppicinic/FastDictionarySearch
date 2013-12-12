@@ -2,124 +2,63 @@ package prefix;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.HashMap;
 
+/**
+ * FastPrefix Dictionary calculates the sum of all values that start with a given prefix
+ * This solution involves saving all possible prefixes and calculating the sum while 
+ * building the HashMap data Structure
+ * The Con of the Solution is that build time is much slower than the linear Naive approach
+ * and size is even larger, however the pros are that this solution is then capable of
+ * using HashMap's constant time get, to get sum in constant time.
+ * @author Phil Picinic
+ *
+ */
 public class FastPrefixDictionary implements PrefixDictionary {
 
-	private class TrieNode {
-		private long value;
-		private char c;
-		private TrieNode[] refs;
+	private HashMap<String, Long> map;
 
-		public TrieNode() {
-			value = 0;
-			c = ' ';
-			refs = new TrieNode[0];
-		}
-
-		public TrieNode(int value, char c) {
-			this.c = c;
-			this.value = value;
-			refs = new TrieNode[0];
-		}
-
-		public boolean containsKey(Character c) {
-			for(int i = 0; i < refs.length; i++){
-				if(c == refs[i].c){
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public TrieNode getNextNode(Character c) {
-			for(int i = 0; i < refs.length; i++){
-				if(c == refs[i].c){
-					return refs[i];
-				}
-			}
-			return null;
-		}
-
-		public void insertNode(Character c, int value) {
-			TrieNode[] temp = new TrieNode[refs.length + 1];
-			int i = 0;
-			for(; i < refs.length; i++){
-				temp[i] = refs[i];
-			}
-			temp[i] = new TrieNode(value, c);
-			refs = temp;
-		}
-
-		public long value() {
-			return value;
-		}
-
-		/*public Collection<TrieNode> values() {
-			return refs.values();
-		}*/
-	}
-
-	private class Trie {
-		private TrieNode node;
-
-		public Trie() {
-			node = new TrieNode();
-		}
-
-		public void insert(String word, int value) {
-			TrieNode head = node;
-			for (int i = 0; i < word.length(); i++) {
-				if (head.containsKey(word.charAt(i))) {
-					head = head.getNextNode(word.charAt(i));
-					head.value += value;
-				} else {
-					head.insertNode(word.charAt(i), value);
-					head = head.getNextNode(word.charAt(i));
-				}
-			}
-			//head.insertNode(word.charAt(word.length() - 1), value);
-		}
-
-		public long sum(String prefix) {
-			TrieNode head = node;
-			for (int i = 0; i < prefix.length(); i++) {
-				if (head.containsKey(prefix.charAt(i))) {
-					head = head.getNextNode(prefix.charAt(i));
-				}else{
-					return 0;
-				}
-			}
-			//sum += sumTrav(head);
-
-			return head.value();
-		}
-
-	}
-
-	private Trie root;
-
+	/**
+	 * Constructor Builds up a HashMap of all existing prefixes and their possible values
+	 * @param filename the filename supplied
+	 */
 	public FastPrefixDictionary(String filename) {
-		root = new Trie();
+		map = new HashMap<String, Long>();
 		try {
 			BufferedReader file = new BufferedReader(new FileReader(filename));
 			String line;
 			String[] lineList;
 			while ((line = file.readLine()) != null) {
 				lineList = line.split(",");
-				root.insert(lineList[0].trim(),
-						Integer.parseInt(lineList[1].trim()));
-
+				String str = lineList[0].trim();
+				String str2 = "";
+				for(int i = 0; i < str.length(); i++){
+					str2 += str.charAt(i);
+					if(map.containsKey(str2)){
+						map.put(str2, map.get(str2) + Integer.parseInt(lineList[1].trim()));
+					}else{
+						map.put(str2, (long)Integer.parseInt(lineList[1].trim()));
+					}
+				}
 			}
-			// System.out.println(words.get(0).key);
 			file.close();
 		} catch (Exception ex) {
 			System.out.println(ex);
 		}
 	}
 
+	/**
+	 * Gets the value of the prefix
+	 * Time is constant as sum is calculated on build up
+	 * @param prefix the prefix given
+	 * @return long the sum of the prefix
+	 */
 	@Override
 	public long sum(String prefix) {
-		return root.sum(prefix);
+		if(map.containsKey(prefix.trim())){
+			return map.get(prefix.trim());
+		}
+		return 0;
 	}
 
 }
